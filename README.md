@@ -3,14 +3,16 @@ A very simple stacking window manager for X11, inspired by cwm and tinywm.
 
 ##Current Features:
 
-|Command|Keybinding|
-|-------|----------|
-|Launch xterm|Alt-Return|  
-|Launch xclock|Alt-c|
-|Move focused window by 20px|Alt-(h/j/k/l)|  
-|Cycle through windows|Alt-Tab|
+|Command|
+|-------|
+|Launch xterm|
+|Launch xclock|
+|Move focused window (up/down/left/right)|
+|Cycle through windows|
+
+Keybindings are assigned in a conf file, see default.coolwmrc.  
 
 ##To-Do:  
-Conf file for keybindings  
+Options in conf file (terminal command, move amount)  
 Workspaces  
 Active/focused borders
