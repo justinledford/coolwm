@@ -91,9 +91,10 @@ void (*name_to_func(char *name))()
 void parse_conf(char *conf_file)
 {
     FILE *fp;
-    char *tok, *line;
+    char *k, *tok, *line;
     size_t len = 0;
     int i;
+    unsigned int j;
 
     fp = fopen(conf_file, "r");
     line = NULL;
@@ -105,22 +106,52 @@ void parse_conf(char *conf_file)
     }
 
     while (getline(&line, &len, fp) != -1) {
+        // Parse command name
         tok = strtok(line, " ");
         keybindings[i].callback = name_to_func(tok);
+
+        // Parse keybinding
         tok = strtok(NULL, " \n");
-        keybindings[i].string = malloc(sizeof(char) * strlen(tok)+1);
-        strcpy(keybindings[i].string, tok);
+        k = strtok(tok, "-");
+
+        // Parse modifiers
+        for (j = 0; j < strlen(k); ++j) {
+            strncpy(keybindings[i].modstrings[j], k+j, 1);
+            keybindings[i].modstrings[j][1] = '\0';
+        }
+
+        // Parse key
+        k = strtok(NULL, " ");
+        keybindings[i].keystring = malloc(sizeof(char) * strlen(k)+1);
+        strcpy(keybindings[i].keystring, k);
         ++i;
     }
 }
 
+unsigned int modstring_to_sym(char *s)
+{
+    if (strcmp(s, "A") == 0)
+        return Mod1Mask;
+    if (strcmp(s, "S") == 0)
+        return ShiftMask;
+    return 0;
+}
+
 void init_keybindings()
 {
-    unsigned int i;
+    unsigned int i, mask;
+
     for (i = 0; i < (sizeof(keybindings) / sizeof(keybinding)); i++) {
+
         keybindings[i].keycode = XKeysymToKeycode(dpy,
-                XStringToKeysym(keybindings[i].string));
-        XGrabKey(dpy, keybindings[i].keycode, Mod1Mask, root, True,
+                XStringToKeysym(keybindings[i].keystring));
+
+        mask = 0;
+        mask |= modstring_to_sym(keybindings[i].modstrings[0]);
+        mask |= modstring_to_sym(keybindings[i].modstrings[1]);
+        keybindings[i].modmasks = mask;
+
+        XGrabKey(dpy, keybindings[i].keycode, mask, root, True,
                  GrabModeAsync, GrabModeAsync);
     }
 }

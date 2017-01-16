@@ -1,8 +1,8 @@
-launch_term     Return
-launch_clock    c
-move_down       j
-move_up         k
-move_left       h
-move_right      l
-cycle           Tab
-quit            q
+launch_term     A-Return
+launch_clock    A-c
+move_down       A-j
+move_up         A-k
+move_left       A-h
+move_right      A-l
+cycle           A-Tab
+quit            A-q

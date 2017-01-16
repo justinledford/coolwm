@@ -13,7 +13,9 @@ XEvent ev;
 
 typedef struct {
     KeyCode keycode;
-    char *string;
+    char *keystring;
+    char modstrings[2][2];
+    unsigned int modmasks;
     void (*callback)();
 } keybinding;
 
@@ -51,19 +53,6 @@ struct {
     {"cycle", &cycle},
     {"quit", &quit}
 };
-
-/*
-keybinding keybindings[8] = {
-    {0, "Return", &launch_term},
-    {0, "c", &launch_clock},
-    {0, "j", &move_down},
-    {0, "k", &move_up},
-    {0, "h", &move_left},
-    {0, "l", &move_right},
-    {0, "Tab", &cycle},
-    {0, "q", &quit}
-};
-*/
 
 keybinding keybindings[8];
 
