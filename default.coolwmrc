@@ -1,0 +1,8 @@
+launch_term     Return
+launch_clock    c
+move_down       j
+move_up         k
+move_left       h
+move_right      l
+cycle           Tab
+quit            q

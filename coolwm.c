@@ -1,4 +1,6 @@
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <X11/Xlib.h>
 
 #include "coolwm.h"
@@ -77,6 +79,41 @@ void keycode_callback(KeyCode keycode)
     }
 }
 
+void (*name_to_func(char *name))()
+{
+    unsigned int i;
+
+    for (i = 0; i < 8; i++)
+        if (strcmp(name, name_to_funcs[i].name) == 0)
+            return name_to_funcs[i].func;
+}
+
+void parse_conf(char *conf_file)
+{
+    FILE *fp;
+    char *tok, *line;
+    size_t len = 0;
+    int i;
+
+    fp = fopen(conf_file, "r");
+    line = NULL;
+    i = 0;
+
+    if (fp == NULL) {
+        printf("Error opening config file\n");
+        exit(1);
+    }
+
+    while (getline(&line, &len, fp) != -1) {
+        tok = strtok(line, " ");
+        keybindings[i].callback = name_to_func(tok);
+        tok = strtok(NULL, " \n");
+        keybindings[i].string = malloc(sizeof(char) * strlen(tok)+1);
+        strcpy(keybindings[i].string, tok);
+        ++i;
+    }
+}
+
 void init_keybindings()
 {
     unsigned int i;
@@ -105,8 +142,13 @@ void wm_event_loop()
     }
 }
 
-int main()
+int main(int argc, char *argv[])
 {
+    if (argc < 2) {
+        printf("Error: no config file supplied\n");
+        exit(1);
+    }
+    parse_conf(argv[1]);
     wm_init();
     wm_event_loop();
 }
