@@ -1,12 +1,12 @@
 CC=gcc
-CFLAGS=-lX11
+CFLAGS=-g -lX11
 
 all: coolwm
 
 coolwm: coolwm.o
 	$(CC) $(CFLAGS) $^ -o $@
 
-coolwm.o:
+coolwm.o: coolwm.c
 	$(CC) $(CFLAGS) -c coolwm.c
 
 clean:
