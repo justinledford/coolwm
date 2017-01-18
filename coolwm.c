@@ -134,6 +134,8 @@ unsigned int modstring_to_sym(char *s)
         return Mod1Mask;
     if (strcmp(s, "S") == 0)
         return ShiftMask;
+    if (strcmp(s, "C") == 0)
+        return ControlMask;
     return 0;
 }
 
