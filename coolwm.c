@@ -43,6 +43,34 @@ void move_down()
     move_window(0, MOVE_AMOUNT);
 }
 
+void resize_window(int w, int h)
+{
+    if (ev.xkey.subwindow != None) {
+        XGetWindowAttributes(dpy, ev.xkey.subwindow, &attr);
+        XResizeWindow(dpy, ev.xkey.subwindow, attr.width + w, attr.height + h);
+    }
+}
+
+void resize_left()
+{
+    resize_window(-MOVE_AMOUNT, 0);
+}
+
+void resize_right()
+{
+    resize_window(MOVE_AMOUNT, 0);
+}
+
+void resize_up()
+{
+    resize_window(0, -MOVE_AMOUNT);
+}
+
+void resize_down()
+{
+    resize_window(0, MOVE_AMOUNT);
+}
+
 void cycle()
 {
     XCirculateSubwindows(dpy, root, RaiseLowest);
@@ -69,12 +97,13 @@ Window highest_window()
     return children[nchildren-1];
 }
 
-void keycode_callback(KeyCode keycode)
+void keycode_callback(KeyCode keycode, unsigned int state)
 {
     unsigned int i;
 
     for (i = 0; i < (sizeof(keybindings) / sizeof(keybinding)); i++) {
-        if (keybindings[i].keycode == keycode)
+        if ((keybindings[i].keycode == keycode) &&
+            (keybindings[i].modmasks == state))
             return keybindings[i].callback();
     }
 }
@@ -83,7 +112,7 @@ void (*name_to_func(char *name))()
 {
     unsigned int i;
 
-    for (i = 0; i < 8; i++)
+    for (i = 0; i < sizeof name_to_funcs; i++)
         if (strcmp(name, name_to_funcs[i].name) == 0)
             return name_to_funcs[i].func;
 }
@@ -170,8 +199,9 @@ void wm_event_loop()
 {
     for (;;) {
         XNextEvent(dpy, &ev);
-        if (ev.type == KeyPress)
-            keycode_callback(ev.xkey.keycode);
+        if (ev.type == KeyPress) {
+            keycode_callback(ev.xkey.keycode, ev.xkey.state);
+        }
     }
 }
 

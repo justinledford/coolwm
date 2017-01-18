@@ -4,5 +4,9 @@ move_down       A-j
 move_up         A-k
 move_left       A-h
 move_right      A-l
+resize_down     CA-j
+resize_up       CA-k
+resize_left     CA-h
+resize_right    CA-l
 cycle           A-Tab
 quit            A-q

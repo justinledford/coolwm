@@ -26,6 +26,11 @@ void move_left();
 void move_right();
 void move_up();
 void move_down();
+void resize_window();
+void resize_left();
+void resize_right();
+void resize_up();
+void resize_down();
 void cycle();
 void quit();
 
@@ -34,7 +39,7 @@ void wm_init();
 void init_keybindings();
 void wm_event_loop();
 
-void keycode_callback(KeyCode);
+void keycode_callback(KeyCode, unsigned int);
 void (*name_to_func(char *))();
 
 void warp_pointer();
@@ -50,10 +55,14 @@ struct {
     {"move_up", &move_up},
     {"move_left", &move_left},
     {"move_right", &move_right},
+    {"resize_down", &resize_down},
+    {"resize_up", &resize_up},
+    {"resize_left", &resize_left},
+    {"resize_right", &resize_right},
     {"cycle", &cycle},
     {"quit", &quit}
 };
 
-keybinding keybindings[8];
+keybinding keybindings[12];
 
 #endif
