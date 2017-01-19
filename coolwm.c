@@ -151,7 +151,7 @@ unsigned int modstring_to_sym(char *s)
 
 void init_keybindings()
 {
-    unsigned int i, mask;
+    unsigned int i, mask, j;
 
     for (i = 0; i < (sizeof(keybindings) / sizeof(keybinding)); i++) {
 
@@ -159,9 +159,8 @@ void init_keybindings()
                 XStringToKeysym(keybindings[i].keystring));
 
         mask = 0;
-        mask |= modstring_to_sym(keybindings[i].modstrings[0]);
-        mask |= modstring_to_sym(keybindings[i].modstrings[1]);
-        mask |= modstring_to_sym(keybindings[i].modstrings[2]);
+        for (j = 0; j < 3; ++j)
+            mask |= modstring_to_sym(keybindings[i].modstrings[j]);
         keybindings[i].modmasks = mask;
 
         XGrabKey(dpy, keybindings[i].keycode, mask, root, True,
