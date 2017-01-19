@@ -115,6 +115,9 @@ void parse_conf(char *conf_file)
         strcpy(keybindings[i].keystring, k);
         ++i;
     }
+
+    free(line);
+    fclose(fp);
 }
 
 unsigned int modstring_to_sym(char *s)
