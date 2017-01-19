@@ -161,6 +161,7 @@ void init_keybindings()
         mask = 0;
         mask |= modstring_to_sym(keybindings[i].modstrings[0]);
         mask |= modstring_to_sym(keybindings[i].modstrings[1]);
+        mask |= modstring_to_sym(keybindings[i].modstrings[2]);
         keybindings[i].modmasks = mask;
 
         XGrabKey(dpy, keybindings[i].keycode, mask, root, True,
