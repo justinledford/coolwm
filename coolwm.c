@@ -44,17 +44,18 @@ void quit()         { exit(0); }
 
 void warp_pointer()
 {
-    XWarpPointer(dpy, None, highest_window(),
-            0, 0, 0, 0, 0, 0);
+    XWarpPointer(dpy, None, *highest_window(), 0, 0, 0, 0, 0, 0);
 }
 
-Window highest_window()
+Window * highest_window()
 {
-    Window _, *children;
+    Window _, *children, *highest;
     unsigned int nchildren;
 
     XQueryTree(dpy, root, &_, &_, &children, &nchildren);
-    return children[nchildren-1];
+    highest = &children[nchildren-1];
+    XFree(children);
+    return highest;
 }
 
 void keycode_callback(KeyCode keycode, unsigned int state)

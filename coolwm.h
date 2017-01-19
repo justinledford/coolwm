@@ -43,7 +43,7 @@ void keycode_callback(KeyCode, unsigned int);
 void (*name_to_func(char *))();
 
 void warp_pointer();
-Window highest_window();
+Window * highest_window();
 
 struct {
     char *name;
