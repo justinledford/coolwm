@@ -5,15 +5,8 @@
 
 #include "coolwm.h"
 
-void launch_term()
-{
-    system("xterm &");
-}
-
-void launch_clock()
-{
-    system("xclock &");
-}
+void launch_term()  { system("xterm &"); }
+void launch_clock() { system("xclock &"); }
 
 void move_window(int x, int y)
 {
@@ -23,25 +16,10 @@ void move_window(int x, int y)
     }
 }
 
-void move_left()
-{
-    move_window(-MOVE_AMOUNT, 0);
-}
-
-void move_right()
-{
-    move_window(MOVE_AMOUNT, 0);
-}
-
-void move_up()
-{
-    move_window(0, -MOVE_AMOUNT);
-}
-
-void move_down()
-{
-    move_window(0, MOVE_AMOUNT);
-}
+void move_left()    { move_window(-MOVE_AMOUNT, 0); }
+void move_right()   { move_window(MOVE_AMOUNT, 0); }
+void move_up()      { move_window(0, -MOVE_AMOUNT); }
+void move_down()    { move_window(0, MOVE_AMOUNT); }
 
 void resize_window(int w, int h)
 {
@@ -51,25 +29,10 @@ void resize_window(int w, int h)
     }
 }
 
-void resize_left()
-{
-    resize_window(-MOVE_AMOUNT, 0);
-}
-
-void resize_right()
-{
-    resize_window(MOVE_AMOUNT, 0);
-}
-
-void resize_up()
-{
-    resize_window(0, -MOVE_AMOUNT);
-}
-
-void resize_down()
-{
-    resize_window(0, MOVE_AMOUNT);
-}
+void resize_left()  { resize_window(-MOVE_AMOUNT, 0); }
+void resize_right() { resize_window(MOVE_AMOUNT, 0); }
+void resize_up()    { resize_window(0, -MOVE_AMOUNT); }
+void resize_down()  { resize_window(0, MOVE_AMOUNT); }
 
 void cycle()
 {
@@ -77,10 +40,7 @@ void cycle()
     warp_pointer();
 }
 
-void quit()
-{
-    exit(0);
-}
+void quit()         { exit(0); }
 
 void warp_pointer()
 {
