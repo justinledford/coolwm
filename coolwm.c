@@ -40,7 +40,16 @@ void cycle()
     warp_pointer();
 }
 
-void quit()         { exit(0); }
+void quit()
+{
+    unsigned int i;
+
+    for (i = 0; i < (sizeof(keybindings) / sizeof(keybinding)); i++)
+        free(keybindings[i].keystring);
+
+    XCloseDisplay(dpy);
+    exit(0);
+}
 
 void warp_pointer()
 {
