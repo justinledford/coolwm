@@ -13,6 +13,7 @@ void move_window(int x, int y)
     if (ev.xkey.subwindow != None) {
         XGetWindowAttributes(dpy, ev.xkey.subwindow, &attr);
         XMoveWindow(dpy, ev.xkey.subwindow, attr.x + x, attr.y + y);
+        XWarpPointer(dpy, None, ev.xkey.subwindow, 0, 0, 0, 0, 0, 0);
     }
 }
 
