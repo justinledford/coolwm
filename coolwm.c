@@ -20,6 +20,10 @@ void move_left()    { move_window(-MOVE_AMOUNT, 0); }
 void move_right()   { move_window(MOVE_AMOUNT, 0); }
 void move_up()      { move_window(0, -MOVE_AMOUNT); }
 void move_down()    { move_window(0, MOVE_AMOUNT); }
+void big_move_left()    { move_window(-MOVE_AMOUNT*10, 0); }
+void big_move_right()   { move_window(MOVE_AMOUNT*10, 0); }
+void big_move_up()      { move_window(0, -MOVE_AMOUNT*10); }
+void big_move_down()    { move_window(0, MOVE_AMOUNT*10); }
 
 void resize_window(int w, int h)
 {
@@ -33,6 +37,10 @@ void resize_left()  { resize_window(-MOVE_AMOUNT, 0); }
 void resize_right() { resize_window(MOVE_AMOUNT, 0); }
 void resize_up()    { resize_window(0, -MOVE_AMOUNT); }
 void resize_down()  { resize_window(0, MOVE_AMOUNT); }
+void big_resize_left()  { resize_window(-MOVE_AMOUNT*10, 0); }
+void big_resize_right() { resize_window(MOVE_AMOUNT*10, 0); }
+void big_resize_up()    { resize_window(0, -MOVE_AMOUNT*10); }
+void big_resize_down()  { resize_window(0, MOVE_AMOUNT*10); }
 
 void cycle()
 {
