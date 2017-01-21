@@ -46,14 +46,13 @@ void big_resize_down()  { resize_window(0, MOVE_AMOUNT*10); }
 
 void cycle()
 {
-    Window *lowest;
+    Window lowest;
 
     lowest = lowest_window();
-    XRaiseWindow(dpy, *lowest);
-    XGetWindowAttributes(dpy, *lowest, &attr);
-    XWarpPointer(dpy, None, *lowest, 0, 0, 0, 0,
+    XRaiseWindow(dpy, lowest);
+    XGetWindowAttributes(dpy, lowest, &attr);
+    XWarpPointer(dpy, None, lowest, 0, 0, 0, 0,
                  attr.width/2, attr.height/2);
-    XFree(lowest);
 }
 
 void quit()
@@ -67,19 +66,20 @@ void quit()
     exit(0);
 }
 
-Window * lowest_window()
+Window lowest_window()
 {
-    Window _, *children, *lowest;
+    Window _, *children, lowest;
     unsigned int nchildren;
 
     XQueryTree(dpy, root, &_, &_, &children, &nchildren);
 
     if (nchildren > 0) {
-        lowest = children;
+        lowest = *children;
+        XFree(children);
         return lowest;
     }
 
-    return &root;
+    return root;
 }
 
 void keycode_callback(KeyCode keycode, unsigned int state)
