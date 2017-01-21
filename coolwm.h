@@ -50,8 +50,7 @@ void wm_event_loop();
 void keycode_callback(KeyCode, unsigned int);
 void (*name_to_func(char *))();
 
-void warp_pointer();
-Window * highest_window();
+Window * lowest_window();
 
 struct {
     char *name;
