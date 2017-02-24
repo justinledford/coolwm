@@ -18,3 +18,10 @@ big_resize_left         SCA-h
 big_resize_right        SCA-l
 cycle                   A-Tab
 quit                    A-q
+add_to_group            AS-1
+add_to_group            AS-2
+add_to_group            AS-3
+switch_group            A-1
+switch_group            A-2
+switch_group            A-3
+test                    A-t

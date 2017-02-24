@@ -57,6 +57,74 @@ void cycle()
                  attr.width/2, attr.height/2);
 }
 
+
+void add_to_group()
+{
+    unsigned int add_group;
+
+    add_group = ev.xkey.keycode - 10;
+    if (add_group > 3)
+        return;
+
+    /*
+     * Delete from current group, add to new group, then send to
+     * new group
+     */
+    wl_delete(groups[context.current_group], ev.xkey.subwindow);
+    wl_add(groups[add_group], ev.xkey.subwindow);
+
+    if (add_group != context.current_group)
+        XUnmapWindow(dpy, ev.xkey.subwindow);
+}
+
+void hide_group(unsigned int group_num)
+{
+    window_list_node* node;
+
+    node = groups[group_num]->root;
+    while (node) {
+        if (node->w)
+            XUnmapWindow(dpy, node->w);
+        node = node->next;
+    }
+}
+
+void test()
+{
+    XUnmapWindow(dpy, ev.xkey.subwindow);
+}
+
+void show_group(unsigned int group_num)
+{
+   window_list_node* node;
+
+    node = groups[group_num]->root;
+    while (node) {
+        XMapWindow(dpy, node->w);
+        node = node->next;
+    }
+}
+
+void _switch_group(unsigned int hide, unsigned int show)
+{
+    hide_group(hide);
+    show_group(show);
+}
+
+void switch_group()
+{
+    unsigned int show;
+
+    /* why is this 10, 11, ... ? */
+    show = ev.xkey.keycode - 10;
+    if (show > (int)sizeof groups)
+        return;
+
+    _switch_group(context.current_group, show);
+
+    context.current_group = show;
+}
+
 void quit()
 {
     unsigned int i;
@@ -177,12 +245,22 @@ void init_keybindings()
     }
 }
 
+void init_groups()
+{
+    int i;
+
+    for (i = 0; i < 3; i++)
+        groups[i] = wl_init();
+}
+
 void wm_init()
 {
     if (!(dpy = XOpenDisplay(0x0))) return;
     root = DefaultRootWindow(dpy);
+    context.current_group = 0;
 
     init_keybindings();
+    init_groups();
 }
 
 void wm_event_loop()

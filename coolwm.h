@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <X11/Xlib.h>
 
+#include "window_list.h"
+
 #define MOVE_AMOUNT 20
 
 Display * dpy;
@@ -42,10 +44,19 @@ void big_resize_down();
 void cycle();
 void quit();
 
+void add_to_group();
+void hide_group(unsigned int);
+void show_group(unsigned int);
+void _switch_group(unsigned int, unsigned int);
+void switch_group();
+
 void parse_conf(char *);
 void wm_init();
 void init_keybindings();
+void init_groups();
 void wm_event_loop();
+
+void test();
 
 void keycode_callback(KeyCode, unsigned int);
 void (*name_to_func(char *))();
@@ -75,9 +86,18 @@ struct {
     {"big_resize_left", &big_resize_left},
     {"big_resize_right", &big_resize_right},
     {"cycle", &cycle},
-    {"quit", &quit}
+    {"add_to_group", &add_to_group},
+    {"switch_group", &switch_group},
+    {"quit", &quit},
+    {"test", &test}
 };
 
-keybinding keybindings[20];
+keybinding keybindings[27];
+
+window_list* groups[3];
+
+struct {
+    unsigned int current_group;
+} context;
 
 #endif
