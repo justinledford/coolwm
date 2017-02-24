@@ -105,12 +105,6 @@ void show_group(unsigned int group_num)
     }
 }
 
-void _switch_group(unsigned int hide, unsigned int show)
-{
-    hide_group(hide);
-    show_group(show);
-}
-
 void switch_group()
 {
     unsigned int show;
@@ -120,7 +114,8 @@ void switch_group()
     if (show > (int)sizeof groups)
         return;
 
-    _switch_group(context.current_group, show);
+    hide_group(context.current_group);
+    show_group(show);
 
     context.current_group = show;
 }

@@ -47,7 +47,6 @@ void quit();
 void add_to_group();
 void hide_group(unsigned int);
 void show_group(unsigned int);
-void _switch_group(unsigned int, unsigned int);
 void switch_group();
 
 void parse_conf(char *);
