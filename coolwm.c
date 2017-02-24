@@ -31,6 +31,10 @@ void resize_window(int w, int h)
 {
     if (ev.xkey.subwindow != None) {
         XGetWindowAttributes(dpy, ev.xkey.subwindow, &attr);
+
+        if ((attr.width + w < 1) || (attr.height + h < 1))
+            return;
+
         XResizeWindow(dpy, ev.xkey.subwindow, attr.width + w, attr.height + h);
         XWarpPointer(dpy, None, ev.xkey.subwindow, 0, 0, 0, 0,
                      (attr.width + w)/2, (attr.height + h)/2);
