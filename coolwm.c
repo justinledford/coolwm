@@ -312,6 +312,12 @@ void create_handler(Window w)
 {
     XSetWindowAttributes set_attr;
 
+    XGetWindowAttributes(dpy, w, &attr);
+
+    /* ignore "hidden" windows */
+    if (!attr.bit_gravity)
+        return;
+
     /* Set event mask to receive events */
     set_attr.event_mask = FocusChangeMask |
         EnterWindowMask | LeaveWindowMask;
@@ -322,7 +328,6 @@ void create_handler(Window w)
     set_active(w);
 
     /* focus on created window */
-    XGetWindowAttributes(dpy, w, &attr);
     XWarpPointer(dpy, None, w, 0, 0, 0, 0,
                  attr.width/2, attr.height/2);
 
