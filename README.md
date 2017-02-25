@@ -10,6 +10,7 @@ A very simple stacking window manager for X11, inspired by cwm and tinywm.
 - Resize focused window  
 - Cycle through windows  
 - Assign windows to groups (workspaces) 
+- Focused/unfocused borders    
 
 
 Keybindings are assigned in a conf file, see default.coolwmrc.  
@@ -19,7 +20,6 @@ Keybindings are assigned in a conf file, see default.coolwmrc.
 - Assign executables to key-bindings in config file (terminals, application launchers, etc.)  
 - Remember cursor position on cycle  
 - Reverse cycle  
-- Active/focused borders  
 
 
 ##Development:
