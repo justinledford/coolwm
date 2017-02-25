@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdlib.h>
 #include <X11/Xlib.h>
 
@@ -46,4 +47,18 @@ void wl_delete(window_list *wl, Window w)
             node = &((*node)->next);
         }
     }
+}
+
+bool wl_find(window_list *wl, Window w)
+{
+    window_list_node *node;
+
+    node = wl->root;
+
+    while (node) {
+        if (node->w == w)
+            return true;
+        node = node->next;
+    }
+    return false;
 }
