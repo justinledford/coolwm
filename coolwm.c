@@ -278,6 +278,8 @@ void wm_event_loop()
             keycode_callback(ev.xkey.keycode, ev.xkey.state);
         if (ev.type == CreateNotify)
             wl_add(context.current_group, ev.xcreatewindow.window);
+        if (ev.type == DestroyNotify)
+            wl_delete(context.current_group, ev.xcreatewindow.window);
     }
 }
 
