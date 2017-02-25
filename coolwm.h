@@ -45,8 +45,8 @@ void cycle();
 void quit();
 
 void add_to_group();
-void hide_group(unsigned int);
-void show_group(unsigned int);
+void hide_group(window_list *);
+void show_group(window_list *);
 void switch_group();
 
 void parse_conf(char *);
@@ -96,7 +96,7 @@ keybinding keybindings[27];
 window_list* groups[3];
 
 struct {
-    unsigned int current_group;
+    window_list* current_group;
 } context;
 
 #endif

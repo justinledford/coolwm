@@ -74,18 +74,18 @@ void add_to_group()
      * Delete from current group, add to new group, then send to
      * new group
      */
-    wl_delete(groups[context.current_group], ev.xkey.subwindow);
+    wl_delete(context.current_group, ev.xkey.subwindow);
     wl_add(groups[add_group], ev.xkey.subwindow);
 
-    if (add_group != context.current_group)
+    if (groups[add_group] != context.current_group)
         XUnmapWindow(dpy, ev.xkey.subwindow);
 }
 
-void hide_group(unsigned int group_num)
+void hide_group(window_list *group)
 {
-    window_list_node* node;
+    window_list_node *node;
 
-    node = groups[group_num]->root;
+    node = group->root;
     while (node) {
         if (node->w)
             XUnmapWindow(dpy, node->w);
@@ -98,11 +98,11 @@ void test()
     XUnmapWindow(dpy, ev.xkey.subwindow);
 }
 
-void show_group(unsigned int group_num)
+void show_group(window_list* group)
 {
    window_list_node* node;
 
-    node = groups[group_num]->root;
+    node = group->root;
     while (node) {
         XMapWindow(dpy, node->w);
         node = node->next;
@@ -119,9 +119,9 @@ void switch_group()
         return;
 
     hide_group(context.current_group);
-    show_group(show);
+    show_group(groups[show]);
 
-    context.current_group = show;
+    context.current_group = groups[show];
 }
 
 void quit()
@@ -254,21 +254,30 @@ void init_groups()
 
 void wm_init()
 {
+    XSetWindowAttributes rootattr;
+
     if (!(dpy = XOpenDisplay(0x0))) return;
     root = DefaultRootWindow(dpy);
-    context.current_group = 0;
+
+    /* Set event mask on root window to receive events */
+    rootattr.event_mask = SubstructureNotifyMask;
+    XChangeWindowAttributes(dpy, root, 0, &rootattr);
+    XSelectInput(dpy, root, rootattr.event_mask);
 
     init_keybindings();
     init_groups();
+
+    context.current_group = groups[0];
 }
 
 void wm_event_loop()
 {
     for (;;) {
         XNextEvent(dpy, &ev);
-        if (ev.type == KeyPress) {
+        if (ev.type == KeyPress)
             keycode_callback(ev.xkey.keycode, ev.xkey.state);
-        }
+        if (ev.type == CreateNotify)
+            wl_add(context.current_group, ev.xcreatewindow.window);
     }
 }
 
