@@ -6,7 +6,10 @@
 
 #include "window_list.h"
 
-#define MOVE_AMOUNT 20
+#define MOVE_AMOUNT         20
+#define FOCUSED_COLOR       0xcfe0fc
+#define UNFOCUSED_COLOR     0x103268
+#define BORDER_WIDTH        5
 
 Display * dpy;
 Window root;
@@ -48,6 +51,13 @@ void add_to_group();
 void hide_group(window_list *);
 void show_group(window_list *);
 void switch_group();
+void remove_from_groups(Window);
+
+void draw_border(Window, unsigned int);
+void draw_borders(window_list *, unsigned int);
+
+void create_handler(Window);
+void destroy_handler(Window);
 
 void parse_conf(char *);
 void wm_init();
@@ -59,8 +69,6 @@ void test();
 
 void keycode_callback(KeyCode, unsigned int);
 void (*name_to_func(char *))();
-
-Window lowest_window();
 
 struct {
     char *name;

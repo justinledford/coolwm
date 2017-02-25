@@ -52,13 +52,16 @@ void big_resize_down()  { resize_window(0, MOVE_AMOUNT*10); }
 
 void cycle()
 {
-    Window lowest;
+    Window w;
 
-    lowest = lowest_window();
-    XRaiseWindow(dpy, lowest);
-    XGetWindowAttributes(dpy, lowest, &attr);
-    XWarpPointer(dpy, None, lowest, 0, 0, 0, 0,
+    w = wl_next(context.current_group, ev.xkey.subwindow);
+    XRaiseWindow(dpy, w);
+    XGetWindowAttributes(dpy, w, &attr);
+    XWarpPointer(dpy, None, w, 0, 0, 0, 0,
                  attr.width/2, attr.height/2);
+
+    draw_borders(context.current_group, UNFOCUSED_COLOR);
+    draw_border(w, FOCUSED_COLOR);
 }
 
 
@@ -93,11 +96,6 @@ void hide_group(window_list *group)
     }
 }
 
-void test()
-{
-    XUnmapWindow(dpy, ev.xkey.subwindow);
-}
-
 void show_group(window_list* group)
 {
    window_list_node* node;
@@ -124,6 +122,32 @@ void switch_group()
     context.current_group = groups[show];
 }
 
+void remove_from_groups(Window w)
+{
+    int i;
+
+    for (i = 0; i < 3; i++)
+        wl_delete(groups[i], w);
+}
+
+void draw_border(Window w, unsigned int color)
+{
+    XSetWindowBorderWidth(dpy, w, BORDER_WIDTH);
+    XSetWindowBorder(dpy, w, color);
+}
+
+void draw_borders(window_list *wl, unsigned int color)
+{
+    window_list_node *node;
+
+    node = wl->root;
+
+    while(node) {
+        XSetWindowBorder(dpy, node->w, color);
+        node = node->next;
+    }
+}
+
 void quit()
 {
     unsigned int i;
@@ -133,22 +157,6 @@ void quit()
 
     XCloseDisplay(dpy);
     exit(0);
-}
-
-Window lowest_window()
-{
-    Window _, *children, lowest;
-    unsigned int nchildren;
-
-    XQueryTree(dpy, root, &_, &_, &children, &nchildren);
-
-    if (nchildren > 0) {
-        lowest = *children;
-        XFree(children);
-        return lowest;
-    }
-
-    return root;
 }
 
 void keycode_callback(KeyCode keycode, unsigned int state)
@@ -260,7 +268,8 @@ void wm_init()
     root = DefaultRootWindow(dpy);
 
     /* Set event mask on root window to receive events */
-    rootattr.event_mask = SubstructureNotifyMask;
+    rootattr.event_mask = SubstructureNotifyMask | FocusChangeMask |
+        EnterWindowMask | LeaveWindowMask;
     XChangeWindowAttributes(dpy, root, 0, &rootattr);
     XSelectInput(dpy, root, rootattr.event_mask);
 
@@ -277,10 +286,33 @@ void wm_event_loop()
         if (ev.type == KeyPress)
             keycode_callback(ev.xkey.keycode, ev.xkey.state);
         if (ev.type == CreateNotify)
-            wl_add(context.current_group, ev.xcreatewindow.window);
+            create_handler(ev.xcreatewindow.window);
         if (ev.type == DestroyNotify)
-            wl_delete(context.current_group, ev.xcreatewindow.window);
+            destroy_handler(ev.xdestroywindow.window);
     }
+}
+
+void test()
+{
+    XSetWindowBorder(dpy, ev.xkey.subwindow, FOCUSED_COLOR);
+}
+
+void create_handler(Window w)
+{
+    wl_add(context.current_group, w);
+    draw_borders(context.current_group, UNFOCUSED_COLOR);
+    draw_border(w, FOCUSED_COLOR);
+
+    /* focus on created window */
+    XGetWindowAttributes(dpy, w, &attr);
+    XWarpPointer(dpy, None, w, 0, 0, 0, 0,
+                 attr.width/2, attr.height/2);
+
+}
+
+void destroy_handler(Window w)
+{
+    remove_from_groups(w);
 }
 
 int main(int argc, char *argv[])

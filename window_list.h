@@ -62,3 +62,17 @@ bool wl_find(window_list *wl, Window w)
     }
     return false;
 }
+
+Window wl_next(window_list *wl, Window w)
+{
+    window_list_node *node;
+
+    node = wl->root;
+
+    while (node) {
+        if (node->w == w)
+            return (node->next) ? node->next->w : wl->root->w;
+        node = node->next;
+    }
+    return w;
+}
