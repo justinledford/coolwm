@@ -1,9 +1,12 @@
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <X11/Xlib.h>
 
 #include "coolwm.h"
+
+#include "eventnames.h"
 
 void launch_term()  { system("xterm &"); }
 void launch_clock() { system("xclock &"); }
@@ -54,14 +57,16 @@ void cycle()
 {
     Window w;
 
-    w = wl_next(context.current_group, ev.xkey.subwindow);
+    w = wl_next(context.current_group->windows, ev.xkey.subwindow);
+
+    if (!w)
+        return;
+
     XRaiseWindow(dpy, w);
     XGetWindowAttributes(dpy, w, &attr);
     XWarpPointer(dpy, None, w, 0, 0, 0, 0,
                  attr.width/2, attr.height/2);
-
-    draw_borders(context.current_group, UNFOCUSED_COLOR);
-    draw_border(w, FOCUSED_COLOR);
+    set_active(w);
 }
 
 
@@ -77,18 +82,18 @@ void add_to_group()
      * Delete from current group, add to new group, then send to
      * new group
      */
-    wl_delete(context.current_group, ev.xkey.subwindow);
-    wl_add(groups[add_group], ev.xkey.subwindow);
+    wl_delete(context.current_group->windows, ev.xkey.subwindow);
+    wl_add(context.groups[add_group].windows, ev.xkey.subwindow);
 
-    if (groups[add_group] != context.current_group)
+    if (&context.groups[add_group] != context.current_group)
         XUnmapWindow(dpy, ev.xkey.subwindow);
 }
 
-void hide_group(window_list *group)
+void hide_group(group *grp)
 {
     window_list_node *node;
 
-    node = group->root;
+    node = grp->windows->root;
     while (node) {
         if (node->w)
             XUnmapWindow(dpy, node->w);
@@ -96,11 +101,11 @@ void hide_group(window_list *group)
     }
 }
 
-void show_group(window_list* group)
+void show_group(group *grp)
 {
-   window_list_node* node;
+    window_list_node* node;
 
-    node = group->root;
+    node = grp->windows->root;
     while (node) {
         XMapWindow(dpy, node->w);
         node = node->next;
@@ -113,13 +118,13 @@ void switch_group()
 
     /* why is this 10, 11, ... ? */
     show = ev.xkey.keycode - 10;
-    if (show > (int)sizeof groups)
+    if (show > 10)
         return;
 
     hide_group(context.current_group);
-    show_group(groups[show]);
+    show_group(&context.groups[show]);
 
-    context.current_group = groups[show];
+    context.current_group = &context.groups[show];
 }
 
 void remove_from_groups(Window w)
@@ -127,7 +132,7 @@ void remove_from_groups(Window w)
     int i;
 
     for (i = 0; i < 3; i++)
-        wl_delete(groups[i], w);
+        wl_delete(context.groups[i].windows, w);
 }
 
 void draw_border(Window w, unsigned int color)
@@ -256,8 +261,10 @@ void init_groups()
 {
     int i;
 
-    for (i = 0; i < 3; i++)
-        groups[i] = wl_init();
+    for (i = 0; i < 3; i++) {
+        context.groups[i].windows = wl_init();
+        context.groups[i].active = 0;
+    }
 }
 
 void wm_init()
@@ -266,6 +273,8 @@ void wm_init()
 
     if (!(dpy = XOpenDisplay(0x0))) return;
     root = DefaultRootWindow(dpy);
+
+    XSetErrorHandler(error_handler);
 
     /* Set event mask on root window to receive events */
     rootattr.event_mask = SubstructureNotifyMask | FocusChangeMask |
@@ -276,7 +285,7 @@ void wm_init()
     init_keybindings();
     init_groups();
 
-    context.current_group = groups[0];
+    context.current_group = &context.groups[0];
 }
 
 void wm_event_loop()
@@ -289,6 +298,8 @@ void wm_event_loop()
             create_handler(ev.xcreatewindow.window);
         if (ev.type == DestroyNotify)
             destroy_handler(ev.xdestroywindow.window);
+        if (ev.type == EnterNotify)
+            enter_handler(ev.xcrossing.window);
     }
 }
 
@@ -299,9 +310,16 @@ void test()
 
 void create_handler(Window w)
 {
-    wl_add(context.current_group, w);
-    draw_borders(context.current_group, UNFOCUSED_COLOR);
-    draw_border(w, FOCUSED_COLOR);
+    XSetWindowAttributes set_attr;
+
+    /* Set event mask to receive events */
+    set_attr.event_mask = FocusChangeMask |
+        EnterWindowMask | LeaveWindowMask;
+    XChangeWindowAttributes(dpy, w, 0, &set_attr);
+    XSelectInput(dpy, w, set_attr.event_mask);
+
+    wl_add(context.current_group->windows, w);
+    set_active(w);
 
     /* focus on created window */
     XGetWindowAttributes(dpy, w, &attr);
@@ -312,7 +330,51 @@ void create_handler(Window w)
 
 void destroy_handler(Window w)
 {
+    Window next;
+
+    next = wl_next(context.current_group->windows, w);
     remove_from_groups(w);
+
+    if (w != next)
+        set_active(next);
+}
+
+void enter_handler(Window w)
+{
+    if (wl_find(context.current_group->windows, w))
+        set_active(w);
+}
+
+void set_active(Window w)
+{
+    Window prev;
+
+    prev = context.current_group->active;
+    if (prev && wl_find(context.current_group->windows, prev))
+        draw_border(context.current_group->active, UNFOCUSED_COLOR);
+
+    context.current_group->active = w;
+    if (w) {
+        XSetInputFocus(dpy, w, RevertToPointerRoot, CurrentTime);
+        draw_border(w, FOCUSED_COLOR);
+    }
+}
+
+/* cwm's error_handler */
+static int error_handler(Display *dpy, XErrorEvent *e)
+{
+#ifdef DEBUG
+    char msg[80], number[80], req[80];
+
+    XGetErrorText(dpy, e->error_code, msg, sizeof(msg));
+    snprintf(number, sizeof(number), "%d", e->request_code);
+    XGetErrorDatabaseText(dpy, "XRequest", number,
+            "<unknown>", req, sizeof(req));
+
+    warnx("%s(0x%x): %s", req, (unsigned int)e->resourceid, msg);
+#endif
+
+    return(0);
 }
 
 int main(int argc, char *argv[])

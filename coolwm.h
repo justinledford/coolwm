@@ -11,6 +11,8 @@
 #define UNFOCUSED_COLOR     0x103268
 #define BORDER_WIDTH        5
 
+#define DEBUG               1
+
 Display * dpy;
 Window root;
 XWindowAttributes attr;
@@ -23,6 +25,20 @@ typedef struct {
     unsigned int modmasks;
     void (*callback)();
 } keybinding;
+
+keybinding keybindings[27];
+
+typedef struct {
+    window_list *windows;
+    Window active;
+} group;
+
+
+struct {
+    group groups[3];
+    group *current_group;
+} context;
+
 
 void launch_term();
 void launch_clock();
@@ -48,8 +64,8 @@ void cycle();
 void quit();
 
 void add_to_group();
-void hide_group(window_list *);
-void show_group(window_list *);
+void hide_group(group *);
+void show_group(group *);
 void switch_group();
 void remove_from_groups(Window);
 
@@ -58,12 +74,20 @@ void draw_borders(window_list *, unsigned int);
 
 void create_handler(Window);
 void destroy_handler(Window);
+void enter_handler(Window);
+void leave_handler(Window);
+void focus_in_handler(Window);
+void focus_out_handler(Window);
+
+void set_active(Window);
 
 void parse_conf(char *);
 void wm_init();
 void init_keybindings();
 void init_groups();
 void wm_event_loop();
+
+static int error_handler(Display *, XErrorEvent *);
 
 void test();
 
@@ -98,13 +122,5 @@ struct {
     {"quit", &quit},
     {"test", &test}
 };
-
-keybinding keybindings[27];
-
-window_list* groups[3];
-
-struct {
-    window_list* current_group;
-} context;
 
 #endif
