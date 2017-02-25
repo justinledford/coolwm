@@ -315,7 +315,7 @@ void create_handler(Window w)
     XGetWindowAttributes(dpy, w, &attr);
 
     /* ignore "hidden" windows */
-    if (!attr.bit_gravity)
+    if (!attr.bit_gravity || attr.override_redirect)
         return;
 
     /* Set event mask to receive events */
