@@ -278,7 +278,7 @@ void wm_init()
 
     /* Set event mask on root window to receive events */
     rootattr.event_mask = SubstructureNotifyMask | FocusChangeMask |
-        EnterWindowMask | LeaveWindowMask;
+        EnterWindowMask | LeaveWindowMask | StructureNotifyMask;
     XChangeWindowAttributes(dpy, root, 0, &rootattr);
     XSelectInput(dpy, root, rootattr.event_mask);
 
@@ -294,8 +294,8 @@ void wm_event_loop()
         XNextEvent(dpy, &ev);
         if (ev.type == KeyPress)
             keycode_callback(ev.xkey.keycode, ev.xkey.state);
-        if (ev.type == CreateNotify)
-            create_handler(ev.xcreatewindow.window);
+        if (ev.type == MapNotify)
+            map_handler(ev.xmap.window);
         if (ev.type == DestroyNotify)
             destroy_handler(ev.xdestroywindow.window);
         if (ev.type == EnterNotify)
@@ -308,29 +308,28 @@ void test()
     XSetWindowBorder(dpy, ev.xkey.subwindow, FOCUSED_COLOR);
 }
 
-void create_handler(Window w)
+void map_handler(Window w)
 {
     XSetWindowAttributes set_attr;
 
     XGetWindowAttributes(dpy, w, &attr);
 
-    /* ignore "hidden" windows */
-    if (!attr.bit_gravity || attr.override_redirect)
-        return;
+    if (!wl_find(context.current_group->windows, w)) {
 
-    /* Set event mask to receive events */
-    set_attr.event_mask = FocusChangeMask |
-        EnterWindowMask | LeaveWindowMask;
-    XChangeWindowAttributes(dpy, w, 0, &set_attr);
-    XSelectInput(dpy, w, set_attr.event_mask);
+        /* Set event mask to receive events */
+        set_attr.event_mask = FocusChangeMask |
+            EnterWindowMask | LeaveWindowMask;
+        XChangeWindowAttributes(dpy, w, 0, &set_attr);
+        XSelectInput(dpy, w, set_attr.event_mask);
 
-    wl_add(context.current_group->windows, w);
+        wl_add(context.current_group->windows, w);
+    }
+
     set_active(w);
 
-    /* focus on created window */
+    /* focus on window */
     XWarpPointer(dpy, None, w, 0, 0, 0, 0,
                  attr.width/2, attr.height/2);
-
 }
 
 void destroy_handler(Window w)

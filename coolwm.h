@@ -72,7 +72,7 @@ void remove_from_groups(Window);
 void draw_border(Window, unsigned int);
 void draw_borders(window_list *, unsigned int);
 
-void create_handler(Window);
+void map_handler(Window);
 void destroy_handler(Window);
 void enter_handler(Window);
 void leave_handler(Window);
