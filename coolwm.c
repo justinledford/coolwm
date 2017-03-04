@@ -295,11 +295,11 @@ void wm_event_loop()
         if (ev.type == KeyPress)
             keycode_callback(ev.xkey.keycode, ev.xkey.state);
         if (ev.type == MapNotify)
-            map_handler(ev.xmap.window);
+            handle_map(ev.xmap.window);
         if (ev.type == DestroyNotify)
-            destroy_handler(ev.xdestroywindow.window);
+            handle_destroy(ev.xdestroywindow.window);
         if (ev.type == EnterNotify)
-            enter_handler(ev.xcrossing.window);
+            handle_enter(ev.xcrossing.window);
     }
 }
 
@@ -308,7 +308,7 @@ void test()
     XSetWindowBorder(dpy, ev.xkey.subwindow, FOCUSED_COLOR);
 }
 
-void map_handler(Window w)
+void handle_map(Window w)
 {
     XSetWindowAttributes set_attr;
 
@@ -332,7 +332,7 @@ void map_handler(Window w)
                  attr.width/2, attr.height/2);
 }
 
-void destroy_handler(Window w)
+void handle_destroy(Window w)
 {
     Window next;
 
@@ -343,7 +343,7 @@ void destroy_handler(Window w)
         set_active(next);
 }
 
-void enter_handler(Window w)
+void handle_enter(Window w)
 {
     if (wl_find(context.current_group->windows, w))
         set_active(w);

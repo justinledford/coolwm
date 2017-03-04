@@ -72,12 +72,9 @@ void remove_from_groups(Window);
 void draw_border(Window, unsigned int);
 void draw_borders(window_list *, unsigned int);
 
-void map_handler(Window);
-void destroy_handler(Window);
-void enter_handler(Window);
-void leave_handler(Window);
-void focus_in_handler(Window);
-void focus_out_handler(Window);
+void handle_map(Window);
+void handle_destroy(Window);
+void handle_enter(Window);
 
 void set_active(Window);
 
