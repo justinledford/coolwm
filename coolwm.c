@@ -104,12 +104,17 @@ void hide_group(group *grp)
 void show_group(group *grp)
 {
     window_list_node* node;
+    Window active;
+
+    active = grp->active;
 
     node = grp->windows->root;
     while (node) {
         XMapWindow(dpy, node->w);
         node = node->next;
     }
+
+    set_active(active);
 }
 
 void switch_group()
@@ -305,7 +310,7 @@ void wm_event_loop()
 
 void test()
 {
-    XSetWindowBorder(dpy, ev.xkey.subwindow, FOCUSED_COLOR);
+    //XSetWindowBorder(dpy, ev.xkey.subwindow, FOCUSED_COLOR);
 }
 
 void handle_map(Window w)
@@ -352,6 +357,8 @@ void handle_enter(Window w)
 void set_active(Window w)
 {
     Window prev;
+
+    if (!w) return;
 
     prev = context.current_group->active;
     if (prev && wl_find(context.current_group->windows, prev))
