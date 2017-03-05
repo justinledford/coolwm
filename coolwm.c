@@ -319,6 +319,9 @@ void handle_map(Window w)
 
     XGetWindowAttributes(dpy, w, &attr);
 
+    if (attr.override_redirect)
+        return;
+
     if (!wl_find(context.current_group->windows, w)) {
 
         /* Set event mask to receive events */
