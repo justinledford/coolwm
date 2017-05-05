@@ -1,7 +1,7 @@
 # coolwm
 A very simple stacking window manager for X11, inspired by cwm and tinywm.  
 
-##Current Features:
+## Current Features:
 
 
 - Launch xterm  
@@ -15,14 +15,14 @@ A very simple stacking window manager for X11, inspired by cwm and tinywm.
 
 Keybindings are assigned in a conf file, see default.coolwmrc.  
 
-##To-Do:  
+## To-Do:  
 - Options in conf file (move amount)  
 - Assign executables to key-bindings in config file (terminals, application launchers, etc.)  
 - Remember cursor position on cycle  
 - Reverse cycle  
 
 
-##Development:
+## Development:
 Run an X server in a window:  
 `Xephyr -ac -screen 800x600 -reset :1 &`  
   
